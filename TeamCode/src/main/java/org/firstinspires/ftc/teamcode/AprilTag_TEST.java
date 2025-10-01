@@ -6,24 +6,28 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
-@TeleOp(name= "April_Tag_3d_Post_Estimation_TEST", group = "org/firstinspires/ftc/teamcode/OpMode")
-public class AprilTag_TEST extends OpMode {
+//@TeleOp(name= "April_Tag_3d_Post_Estimation_TEST", group = "org/firstinspires/ftc/teamcode/OpMode")
+public class AprilTag_TEST {
 
     private AprilTagProcessor tagProcessor;
     private VisionPortal visionPortal;
+
+    private HardwareMap hardwareMap;
     private FtcDashboard ftcDashboard;
 
-    @Override
-    public void init (){
+    public AprilTag_TEST(HardwareMap hardwareMap, FtcDashboard dashboard) {
+        this.hardwareMap = hardwareMap;
+        this.ftcDashboard = dashboard;
+    }
 
-        ftcDashboard = FtcDashboard.getInstance();
-        telemetry = new MultipleTelemetry(telemetry, ftcDashboard.getTelemetry());
+    public void init () {
 
         tagProcessor = new AprilTagProcessor.Builder()
                 .setDrawAxes(true)
@@ -42,25 +46,18 @@ public class AprilTag_TEST extends OpMode {
         visionPortal.resumeLiveView();
     }
 
-    @Override
-    public void loop() {
+    public void tagProcessing() {
+        ftcDashboard.startCameraStream(visionPortal, 30);
+    }
+
+    public AprilTagDetection tagUpdate() {
+
+        AprilTagDetection tag = null;
 
         if (!tagProcessor.getDetections().isEmpty()) {
-            AprilTagDetection tag = tagProcessor.getDetections().get(0);
-
-            telemetry.addData("Bearing", tag.ftcPose.bearing);
-            telemetry.addData("x", tag.ftcPose.x);
-            telemetry.addData("y", tag.ftcPose.y);
-            telemetry.addData("z", tag.ftcPose.z);
-            telemetry.addData("Roll", tag.ftcPose.roll);
-            telemetry.addData("Pitch", tag.ftcPose.pitch);
-            telemetry.addData("Yaw", tag.ftcPose.yaw);
-            telemetry.addData("Range", tag.ftcPose.range);
+            tag = tagProcessor.getDetections().get(0);
         }
 
-        telemetry.addData("April tag is detected", !tagProcessor.getDetections().isEmpty());
-
-        ftcDashboard.startCameraStream(visionPortal, 30);
-        telemetry.update();
+        return tag;
     }
 }
