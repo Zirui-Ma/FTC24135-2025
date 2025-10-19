@@ -96,11 +96,23 @@ public class RobotMovement extends OpMode {
          * * back button is using for retracting slide after auto phase and initial start of teleops
          */
 
-
+        aprilTag.tagProcessing();
+        AprilTagDetection tagValue = aprilTag.tagUpdate();
 
         double y = -gamepad1.right_stick_y; // Remember, Y stick value is reversed
         double x = gamepad1.left_stick_x; // Counteract imperfect strafing
         double rx = gamepad1.right_stick_x;
+
+        if (tagValue != null) {
+            double setRX = (roundNumber(tagValue.ftcPose.x) * 0.1);
+
+            if (Math.abs(setRX) > 10) {
+                rx += 0 + setRX;
+            }
+            else {
+                rx += 0 + setRX / 2;
+            }
+        }
 
         // Denominator is the largest motor power (absolute value) or 1
         // This ensures all the powers maintain the same ratio,
@@ -118,9 +130,6 @@ public class RobotMovement extends OpMode {
         backLeftMotor.setPower(backLeftPower);
         frontRightMotor.setPower(frontRightPower);
         backRightMotor.setPower(backRightPower);
-
-        aprilTag.tagProcessing();
-        AprilTagDetection tagValue = aprilTag.tagUpdate();
 
         if (tagValue != null) {
             telemetry.addData("x", roundNumber(tagValue.ftcPose.x));
